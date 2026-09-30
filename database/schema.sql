@@ -83,3 +83,20 @@ CREATE TABLE comments (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE project_members (
+
+    id SERIAL PRIMARY KEY,
+
+    project_id INTEGER NOT NULL
+        REFERENCES projects(id)
+        ON DELETE CASCADE,
+
+    user_id INTEGER NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(project_id, user_id)
+);
