@@ -1,4 +1,17 @@
 {
+  "name": "code-collaborative-review",
+  "version": "1.0.0",
+  "description": "API driven collaborative code review platform",
+  "type": "module",
+  "main": "dist/server.js",
+
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "typecheck": "tsc --noEmit"
+  },
+
   "dependencies": {
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
