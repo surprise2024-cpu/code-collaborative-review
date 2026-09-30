@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 
@@ -8,6 +9,8 @@ app.use(express.json());
 
 // allows requests from other origins
 app.use(cors());
+
+app.use('/api/auth', authRoutes);
 
 // simple endpoint to check whther the API is working
 app.get('/api/health', (req, res) => {

@@ -56,7 +56,7 @@ export async function register(
 
         // create the user
         const result = await pool.query(
-            `INSER INTO users
+            `INSERT INTO users
                 (name, email, password_hash, role)
             VALUES
                 ($1, $2, $3, $4)
@@ -86,7 +86,7 @@ export async function register(
             success: false,
             message: 'Internal server error'
         });
-        
+
     }
 
 }
