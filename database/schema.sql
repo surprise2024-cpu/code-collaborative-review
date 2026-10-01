@@ -75,7 +75,7 @@ CREATE TABLE comments (
         REFERENCES users(id)
         ON DELETE CASCADE,
 
-    contect TEXT NOT NULL,
+    context TEXT NOT NULL,
 
     line_number INTEGER
         CHECK (line_number IS NULL OR line_number > 0),
