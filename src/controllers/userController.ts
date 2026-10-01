@@ -11,9 +11,11 @@ export async function getProfile(
         const result = await pool.query(
             `SELECT 
                 id, 
-                username, 
+                name, 
                 email, 
-                role 
+                role,
+                display_picture,
+                created_at
             FROM users 
             WHERE id = $1`,
             [req.user?.id]
