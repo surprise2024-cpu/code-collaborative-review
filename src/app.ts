@@ -1,6 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
+import { 
+    authenticateToken,
+    type AuthRequest
+} from './middleware/authMiddleware.js';
 
 const app = express();
 
@@ -21,5 +25,20 @@ app.get('/api/health', (req, res) => {
     });
 
 });
+
+app.get(
+    '/api/protected', 
+    authenticateToken, 
+    (req: AuthRequest, res) => {
+
+        res.status(200).json({
+            success: true,
+            message: 'This is a protected route',
+            user: req.user
+        });
+
+    }
+    
+);
 
 export default app;

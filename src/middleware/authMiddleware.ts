@@ -32,7 +32,7 @@ export function authenticateToken(
 
     }
 
-    const [token, type] = authHeader.split(' ');
+    const [type, token] = authHeader.split(' ');
 
     if (type !== 'Bearer' || !token) {
 
@@ -56,7 +56,7 @@ export function authenticateToken(
         
     }
     catch {
-        
+
         return res.status(401).json({
             success: false,
             message: 'Invalid or expired token'
@@ -64,4 +64,37 @@ export function authenticateToken(
 
     }
 
+}
+
+export function authorizeRoles(
+    ...allowedRoles: Array<'reviewer' | 'submitter'>
+) {
+    return (
+        req: AuthRequest,
+        res: Response,
+        next: NextFunction
+    ) => {
+
+        if (!req.user) {
+
+            return res.status(401).json({
+                sucess: false,
+                message: 'Authentication required'
+            });
+
+        }
+
+        if (!allowedRoles.includes(req.user.role)) {
+
+            return res.status(403).json({
+                success: false,
+                message: 'You do not have permission to access this resource'
+            });
+            
+        }
+
+        next();
+
+    }
+    
 }
