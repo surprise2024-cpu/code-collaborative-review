@@ -118,7 +118,7 @@ export async function login(
                 email,
                 password_hash,
                 role,
-                display_picture,
+                display_picture
             FROM users
             WHERE email = $1`,
             [email]
