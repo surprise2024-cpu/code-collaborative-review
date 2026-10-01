@@ -3,7 +3,9 @@ import { Router } from "express";
 import { 
     createProject, 
     getProjects,
-    getProjectById
+    getProjectById,
+    updateProject,
+    deleteProject
 } from "../controllers/projectController.js";
 
 import { authenticateToken } from "../middleware/authMiddleware.js";
@@ -26,6 +28,18 @@ router.get(
     '/:id',
     authenticateToken,
     getProjectById
+);
+
+router.put(
+    '/:id',
+    authenticateToken,
+    updateProject
+);
+
+router.delete(
+    '/:id',
+    authenticateToken,
+    deleteProject
 );
 
 export default router;
