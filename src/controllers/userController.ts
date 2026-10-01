@@ -1,7 +1,6 @@
 import pool from "../config/database.js";
 import { AuthRequest } from "../middleware/authMiddleware.js";
-
-
+import type { Response } from "express";
 
 export async function getProfile(
     req: AuthRequest,
