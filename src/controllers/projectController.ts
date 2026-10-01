@@ -51,5 +51,49 @@ export async function createProject(
         });
 
     }
+
+}
+
+export async function getProject(
+    req: AuthRequest,
+    res: Response
+) {
     
+    try {
+        const result = await pool.query(
+            `SELECT DISTINCT
+                p.id,
+                p.name,
+                p.description,
+                p.created_by,
+                p.created_at,
+                p.updated_at
+            FROM 
+                projects p
+            LEFT JOIN project_members pm
+                ON p.id = pm.project_id
+            WHERE 
+                p.created_by = $1
+                OR pm.user_id = $1
+            ORDER BY p.created_at DESC`,
+            [req.user?.id]
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error retrieving project:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Error retrieving project'
+        }); 
+
+    }
+
 }

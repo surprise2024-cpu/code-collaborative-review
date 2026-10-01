@@ -6,6 +6,7 @@ import {
     type AuthRequest
 } from './middleware/authMiddleware.js';
 import userRoutes from './routes/userRoutes.js';
+import projectRoutes from './routes/projectRoutes.js';
 
 const app = express();
 
@@ -18,6 +19,9 @@ app.use(cors());
 app.use('/api/auth', authRoutes);
 
 app.use('/api/users', userRoutes);
+
+app.use('/api/projects', projectRoutes);
+
 // simple endpoint to check whther the API is working
 app.get('/api/health', (req, res) => {
 
