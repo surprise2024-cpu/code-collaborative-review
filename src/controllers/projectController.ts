@@ -54,7 +54,7 @@ export async function createProject(
 
 }
 
-export async function getProject(
+export async function getProjects(
     req: AuthRequest,
     res: Response
 ) {
@@ -93,6 +93,73 @@ export async function getProject(
             success: false,
             message: 'Error retrieving project'
         }); 
+
+    }
+
+}
+
+export async function getProjectById(
+    req: AuthRequest,
+    res: Response
+) {
+
+    try {
+         const projectId = Number(req.params.id);
+
+        if (Number.isNaN(projectId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid project ID'
+            });
+            
+        }
+
+        const result = await pool.query(
+            `SELECT DISTINCT
+                p.id,
+                p.name,
+                p.description,
+                p.created_by,
+                p.created_at,
+                p.updated_at
+            FROM 
+                projects p
+            LEFT JOIN project_members pm
+                ON p.id = pm.project_id
+            WHERE
+                p.id = $1
+                AND (
+                    p.created_by = $2 
+                    OR pm.user_id = $2
+                )`,
+            [projectId, req.user?.id]
+            
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'Project not found'
+            });
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows[0]
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error retrieving project by ID:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Error retrieving project by ID'
+        });
 
     }
 
