@@ -134,7 +134,7 @@ export async function getProjectById(
                     OR pm.user_id = $2
                 )`,
             [projectId, req.user?.id]
-            
+
         );
 
         if (result.rows.length === 0) {
@@ -163,4 +163,133 @@ export async function getProjectById(
 
     }
 
+}
+
+export async function updateProject(
+    req: AuthRequest,
+    res: Response
+) { 
+
+    try {
+        const projectId = Number(req.params.id);
+
+        if (Number.isNaN(projectId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid project ID'
+            });
+        }
+
+        const { name, description } = req.body;
+
+        if (!name) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Project name is required'
+            });
+
+        }
+
+        const result = await pool.query(
+            `UPDATE projects
+            SET 
+                name = $1, 
+                description = $2,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE
+                id = $3
+                AND created_by = $4
+            RETURNING
+                id,
+                name,
+                description,
+                created_by,
+                created_at,
+                updated_at
+            `,
+            [name, description ?? null, projectId, req.user?.id]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'Project not found'
+            });
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Project updated successfully',
+            data: result.rows[0]
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error updating project:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Error updating project'
+        });
+
+    }
+
+}
+
+export async function deleteProject(
+    req: AuthRequest,
+    res: Response
+) {
+
+    try {
+
+        const projectId = Number(req.params.id);
+
+        if(Number.isNaN(projectId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid project ID'
+            });
+
+        }
+
+        const result = await pool.query(
+            `DELETE 
+            FROM projects
+            WHERE 
+                id = $1
+                AND created_by = $2
+            RETURNING id`,
+            [projectId, req.user?.id]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'Project not found'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Project deleted successfuly'
+        });
+    }
+    catch (error) {
+        console.error('Error when deleting the project');
+
+        return res.status(500).json({
+            success: false,
+            message: 'Error when deleting the project'
+        });
+
+    }
+    
 }
