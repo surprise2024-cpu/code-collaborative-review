@@ -1,4 +1,6 @@
-import { Router } from "express";
+import { 
+    Router 
+} from "express";
 
 import { 
     createProject, 
@@ -8,7 +10,13 @@ import {
     deleteProject
 } from "../controllers/projectController.js";
 
-import { authenticateToken } from "../middleware/authMiddleware.js";
+import { 
+    authenticateToken 
+} from "../middleware/authMiddleware.js";
+
+import { 
+    addProjectMember 
+} from "../controllers/projectMemberController.js";
 
 const router = Router();
 
@@ -20,7 +28,7 @@ router.post(
 
 router.get(
     '/',
-    authenticateToken,
+    authenticateToken, 
     getProjects
 );
 
@@ -40,6 +48,12 @@ router.delete(
     '/:id',
     authenticateToken,
     deleteProject
+);
+
+router.post(
+    '/:id/members',
+    authenticateToken,
+    addProjectMember
 );
 
 export default router;
