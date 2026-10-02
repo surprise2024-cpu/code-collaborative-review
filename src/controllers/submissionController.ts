@@ -223,3 +223,133 @@ export async function getSubmissionById(
     }
 }
 
+export async function updateSubmission(
+    req: AuthRequest,
+    res: Response
+) {
+
+    try {
+
+        const submissionId = Number(req.params.id);
+        const { title, code } = req.body;
+
+        if (Number.isNaN(submissionId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid submission ID'
+            });
+
+        }
+
+        if (!title || !code ) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Title and code are required'
+            })
+        }
+
+        const result = await pool.query(
+            `UPDATE submissions
+            SET 
+                title = $1,
+                code = $2,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE 
+                id = $3
+                AND submitter_id = $4
+            RETURNING
+                id, 
+                project_id,
+                submitter_id,
+                title,
+                code,
+                status,
+                created_at,
+                updated_at`,
+            [title, code, submissionId, req.user?.id]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'Submission not found'
+            });
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Submission successfully updated',
+            data: result.rows[0]
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error in updating submission', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
+export async function deleteSubmission(
+    req: AuthRequest,
+    res: Response
+) {
+    try {
+
+        const submissionId = Number(req.params.id);
+
+        if (
+            Number.isNaN(submissionId)
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid submission ID'
+            });
+
+        }
+
+        const result = await pool.query(
+            `DELETE FROM submissions 
+            WHERE 
+                id = $1 
+                AND submitter_id = $2
+            RETURNING id`,
+            [submissionId, req.user?.id]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'Submission not found'
+            });
+            
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Submission successfully deleted'
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error deleting submission: ', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+
+    }
+
+}
