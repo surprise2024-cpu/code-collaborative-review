@@ -7,6 +7,7 @@ import {
 } from './middleware/authMiddleware.js';
 import userRoutes from './routes/userRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
+import submissionRoutes from './routes/submissionRoutes.js';
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 
 app.use('/api/projects', projectRoutes);
+
+app.use('/api', submissionRoutes);
 
 // simple endpoint to check whther the API is working
 app.get('/api/health', (req, res) => {
