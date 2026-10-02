@@ -12,13 +12,13 @@ import {
 const router = Router();
 
 router.get(
-    '/register', 
+    '/', 
     authenticateToken,
     getNotifications
 );
 
 router.patch(
-    '/login', 
+    '/:id/read', 
     authenticateToken,
     markNotificationAsRead
 );
