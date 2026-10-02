@@ -32,7 +32,7 @@ app.use('/api', commentRoutes);
 
 app.use('/api', reviewRoutes);
 
-app.use('/api', notificationRoutes)
+app.use('/api/notifications', notificationRoutes);
 
 // simple endpoint to check whther the API is working
 app.get('/api/health', (req, res) => {
