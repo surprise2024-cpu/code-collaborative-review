@@ -1,7 +1,17 @@
 import app from './app.js';
 import pool from './config/database.js';
 
+import { 
+    createServer 
+} from 'http';
+
+import { 
+    initializeWebSocketServer 
+} from './websocket/websocketServer.js';
+
 const PORT = Number(process.env.PORT) || 3000;
+
+const server = createServer(app);
 
 // don't start the server unless PostgreSQL is reachable
 async function startServer() {
@@ -13,7 +23,9 @@ async function startServer() {
 
         console.log('Database connected successfully');
 
-        app.listen(PORT, () => {
+        initializeWebSocketServer(server);
+
+        server.listen(PORT, () => {
 
             console.log(
                 `Code Collaborative Review API is running on port: ${PORT}`
