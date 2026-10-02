@@ -247,7 +247,7 @@ export async function updateSubmission(
             return res.status(400).json({
                 success: false,
                 message: 'Title and code are required'
-            })
+            });
         }
 
         const result = await pool.query(
@@ -295,7 +295,9 @@ export async function updateSubmission(
             success: false,
             message: 'Internal server error'
         });
+
     }
+
 }
 
 export async function deleteSubmission(
