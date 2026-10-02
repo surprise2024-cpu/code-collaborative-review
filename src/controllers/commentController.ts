@@ -3,7 +3,10 @@ import type { Response } from "express";
 import pool from '../config/database.js';
 
 import type { AuthRequest } from "../middleware/authMiddleware.js";
-import { access } from "node:fs";
+
+import { createNotification } from "../utils/notification.js";
+
+import { sendToUser } from "../websocket/websocketServer.js";
 
 export async function createComment(
     req: AuthRequest,
@@ -49,11 +52,14 @@ export async function createComment(
         }
 
         const access = await pool.query(
-            `SELECT s.id
+            `SELECT 
+                s.id,
+                s.submitter_id
             FROM submissions s
             JOIN project_members pm
                 ON s.project_id = pm.project_id
-            WHERE s.id = $1
+            WHERE 
+                s.id = $1
             AND pm.user_id = $2`,
             [submissionId, req.user?.id]
 
