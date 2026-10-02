@@ -1,4 +1,6 @@
-import { Router } from "express";
+import { 
+    Router 
+} from "express";
 
 import { 
     createSubmission, 
@@ -8,7 +10,10 @@ import {
     deleteSubmission
 } from "../controllers/submissionController.js";
 
-import { authenticateToken, authorizeRoles } from "../middleware/authMiddleware.js";
+import { 
+    authenticateToken, 
+    authorizeRoles 
+} from "../middleware/authMiddleware.js";
 
 const router = Router();
 

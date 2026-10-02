@@ -8,7 +8,7 @@ import type {
     Response 
 } from "express";
 
-export async function updateCommentStatus(
+export async function updateReviewStatus(
     req: AuthRequest,
     res: Response
 ) {
