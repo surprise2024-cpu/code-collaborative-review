@@ -9,6 +9,7 @@ import userRoutes from './routes/userRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import submissionRoutes from './routes/submissionRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 const app = express();
 
@@ -26,8 +27,10 @@ app.use('/api/projects', projectRoutes);
 
 app.use('/api', submissionRoutes);
 
+app.use('/api', commentRoutes);
 
-app.use('/api', commentRoutes)
+app.use('/api', reviewRoutes);
+
 // simple endpoint to check whther the API is working
 app.get('/api/health', (req, res) => {
 
