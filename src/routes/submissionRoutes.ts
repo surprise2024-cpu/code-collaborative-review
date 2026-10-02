@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { createSubmission, getProjectSubmissions, getSubmissionById } from "../controllers/submissionController.js";
+
+import { 
+    createSubmission, 
+    getProjectSubmissions, 
+    getSubmissionById,
+    updateSubmission,
+    deleteSubmission
+} from "../controllers/submissionController.js";
+
 import { authenticateToken, authorizeRoles } from "../middleware/authMiddleware.js";
 
 const router = Router();
@@ -21,6 +29,20 @@ router.get(
     '/submissions/:id',
     authenticateToken,
     getSubmissionById
+);
+
+router.put(
+    '/submissions/:id',
+    authenticateToken,
+    authorizeRoles('submitter'),
+    updateSubmission
+);
+
+router.delete(
+    '/submissions/:id',
+    authenticateToken,
+    authorizeRoles('submitter'),
+    deleteSubmission
 );
 
 export default router;
