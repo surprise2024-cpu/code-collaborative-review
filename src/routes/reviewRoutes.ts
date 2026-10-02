@@ -3,7 +3,8 @@ import {
 } from "express";
 
 import { 
-    updateReviewStatus 
+    updateReviewStatus,
+    getReviewHistory 
 } from "../controllers/reviewController.js";
 
 import { 
@@ -18,6 +19,12 @@ router.patch(
     authenticateToken,
     authorizeRoles('reviewer'),
     updateReviewStatus
+);
+
+router.get(
+    '/submissons/:id/history',
+    authenticateToken,
+    getReviewHistory
 );
 
 export default router;
