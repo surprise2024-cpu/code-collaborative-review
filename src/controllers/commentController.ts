@@ -103,3 +103,78 @@ export async function createComment(
     }
 
 }
+
+export async function getSubmissionComments(
+    req: AuthRequest,
+    res: Response
+) {
+    try {   
+
+        const submissionId = Number(req.params.id);
+        const userId = req.user?.id;
+
+        if (Number.isNaN(submissionId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid submission ID'
+            });
+
+        }
+        
+        // check whether user can access the submission
+        const access = await pool.query(
+            `SELECT s.id 
+            FROM submission s
+            JOIN projects p 
+                ON s.project_id = p.id
+            LEFT JOIN project_members pm
+            WHERE s.id = $1 
+            AND (p.created_by = $2 OR pm.user_id = $2)`,
+            [submissionId, userId]
+        );
+
+        if (access.rows.length === 0) {
+
+            return res.status(403).json({
+                success: false,
+                message: 'You do not have access to this submission'
+            });
+
+        }
+
+        const result = await pool.query(
+            `SELECT 
+                c.id,
+                c.submission_id,
+                c.reviewer_id,
+                u.name AS reviewer_name,
+                c.content,
+                c.line_number,
+                c.created_at,
+                c.updated_at
+            FROM comments c
+            JOIN users u 
+                ON c.reviewer_id = u.id
+            WHERE c.submission_id = $1
+            ORDER BY c.created_at ASC`,
+            [submissionId]
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows
+        });
+    }
+    catch (error) {
+
+        console.error('Error fetching comments: ', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+
+    }
+
+}
