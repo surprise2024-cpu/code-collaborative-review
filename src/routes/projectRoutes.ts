@@ -15,7 +15,9 @@ import {
 } from "../middleware/authMiddleware.js";
 
 import { 
-    addProjectMember 
+    addProjectMember,
+    getProjectMembers,
+    removeProjectMember
 } from "../controllers/projectMemberController.js";
 
 const router = Router();
@@ -54,6 +56,18 @@ router.post(
     '/:id/members',
     authenticateToken,
     addProjectMember
+);
+
+router.get(
+    '/:id/members',
+    authenticateToken,
+    getProjectMembers
+);
+
+router.delete(
+    '/:id/members/:userId',
+    authenticateToken,
+    removeProjectMember
 );
 
 export default router;
