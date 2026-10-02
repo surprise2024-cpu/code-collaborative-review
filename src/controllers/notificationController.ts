@@ -1,6 +1,12 @@
 import pool from "../config/database.js";
-import type { Response } from "express";
-import type { AuthRequest } from "../middleware/authMiddleware.js";
+
+import type { 
+    Response 
+} from "express";
+
+import type { 
+    AuthRequest 
+} from "../middleware/authMiddleware.js";
 
 export async function getNotifications(
     req: AuthRequest,

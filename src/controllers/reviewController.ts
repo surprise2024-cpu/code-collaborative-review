@@ -8,6 +8,10 @@ import type {
     Response 
 } from "express";
 
+import { 
+    createNotification 
+} from "../utils/notification.js";
+
 export async function updateReviewStatus(
     req: AuthRequest,
     res: Response
@@ -50,6 +54,7 @@ export async function updateReviewStatus(
             `SELECT
                 s.id
                 s.project_id,
+                s.submitter_id,
                 s.status
             FROM submissions s
             JOIN project_members pm
@@ -150,6 +155,13 @@ export async function updateReviewStatus(
         );
 
         await client.query('COMMIT');
+
+        await createNotification(
+            submission.submitter_id,
+            `Your submission status changed from ${previousStatus}
+            to ${status}`,
+            'review_status_changed'
+        );
 
         return res.status(200).json({
             success: true,
