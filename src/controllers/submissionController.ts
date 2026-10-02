@@ -69,7 +69,7 @@ export async function createSubmission(
     catch (error) {
 
         console.error('Error creating submission:', error);
-        
+
         return res.status(500).json({
             success: false,
             message: 'Error creating submission'
@@ -78,3 +78,148 @@ export async function createSubmission(
     }
 
 }
+
+export async function getProjectSubmissions(
+    req: AuthRequest,
+    res: Response
+) {
+
+    try {
+
+        const projectId = Number(req.params.projectId);
+        const userId = req.user?.id;
+
+        if (Number.isNaN(projectId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid project ID'
+            });
+        }
+
+        // check whether user owns or is a member of the project
+        const access = await pool.query(
+            `SELECT p.id
+            FROM project p
+            LEFT JOIN project_members pm
+                ON p.id = pm.project_id
+            WHERE p.id = $1
+            AND (p.created_by = $2
+                OR pm.user_id = $2
+            )`,
+            [projectId, userId]
+
+        );
+
+        if (access.rows.length === 0) {
+
+            return res.status(403).json({
+                success: false,
+                message: 'You do not have access to this project'
+            });
+
+        }
+
+        const result = await pool.query(
+            `SELECT
+                s.id,
+                s.project_id
+                s.submitter_id,
+                s.title,
+                s.code,
+                s.status,
+                s.created_at,
+                s.updated_at
+            FROM submission s
+            WHERE s.project_id = $1
+            ORDER BY s.created_at DESC`,
+            [projectId]
+
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows
+        });
+    }
+    catch (error) {
+
+        console.error('Error in retrieving project', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+
+    }
+    
+}
+
+export async function getSubmissionById(
+    req: AuthRequest,
+    res: Response
+) {
+
+    try {
+
+        const submissionId = Number(req.params.id);
+        const userId = req.user?.id;
+
+        if (Number.isNaN(submissionId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid submission ID'
+            });
+
+        }
+
+        const result = await pool.query(
+            `SELECT
+                s.id,
+                s.project_id,
+                s.submitter_id,
+                s.title,
+                s.code,
+                s.status,
+                s.created_at,
+                s.updated_at
+            FROM submission s
+            JOIN projects p
+                ON s.project_id = p.id
+            LEFT JOIN project_members pm
+                ON p.id = pm.project_id
+            WHERE s.id = $1
+            AND (
+                p.created_by = $2
+                OR pm.user_id = $2
+            )`,
+            [submissionId, userId]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'Submission not found'
+            });
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows[0]
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error in retrieving project', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+    }
+}
+
