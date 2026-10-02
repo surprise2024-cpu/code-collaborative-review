@@ -59,7 +59,7 @@ export function initializeWebSocketServer(
                     type: 'connection',
                     message: 'WebSocket authenticated successfully'
                 })
-                
+
             );
 
             socket.on('close', () => {
@@ -86,4 +86,29 @@ export function initializeWebSocketServer(
 
     console.log('WebSocket server initialized');
 
+}
+
+export function sendToUser(
+    userId: number,
+    data: unknown
+) {
+
+    const userSockets = clients.get(userId);
+
+    if (!userSockets) {
+        return;
+    }
+
+    const message = JSON.stringify(data);
+
+    for (const socket of userSockets) {
+
+        if (socket.readyState === WebSocket.OPEN) {
+
+            socket.send(message);
+
+        }
+
+    }
+    
 }
