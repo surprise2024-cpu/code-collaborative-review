@@ -100,3 +100,39 @@ CREATE TABLE project_members (
 
     UNIQUE(project_id, user_id)
 );
+
+CREATE TABLE review_history (
+
+    id SERIAL PRIMARY KEY,
+
+    submission_id INTEGER NOT NULL
+        REFERENCES submissions(id)
+        ON DELETE CASCADE,
+
+    reviewer_id INTEGER NOT NULL
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    previous_status VARCHAR(30) NOT NULL
+        CHECK (
+            previous_status IN (
+                'pending',
+                'in_review',
+                'approved',
+                'change_requested'
+            )
+        ),
+
+    new_status VARCHAR(30) NOT NULL 
+        CHECK (
+            new_status IN (
+                'pending',
+                'in_review',
+                'approved',
+                'change_requested'
+            )
+        ),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+);
