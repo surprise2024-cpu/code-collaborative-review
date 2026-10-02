@@ -76,6 +76,23 @@ export async function updateReviewStatus(
         const submission = submissionResult.rows[0];
         const previousStatus = submission.status;
 
+        const validationTransitions:
+            Record<string, string[]> = {
+
+                pending: ['in_review'],
+
+                in_review: [
+                    'approved',
+                    'changes_requested'
+                ],
+
+                change_equested: [
+                    'in_review'
+                ],
+
+                approved: []
+            };
+
         if (previousStatus === status) {
 
             await client.query('ROLLBACK');
@@ -83,6 +100,18 @@ export async function updateReviewStatus(
             return res.status(200).json({
                 success: false,
                 message: `Submission is already ${status}`
+            });
+        }
+
+        if (!validationTransitions[previousStatus]
+            ?.includes(status)
+        ) {
+
+            await client.query('ROLLBACK');
+
+            return res.status(400).json({
+                success: false,
+                message: `Cannot change status from ${previousStatus} to ${status}`
             });
         }
 
@@ -143,6 +172,88 @@ export async function updateReviewStatus(
     } 
     finally {
         client.release();
+    }
+    
+}
+
+export async function getReviewHistory(
+    req: AuthRequest,
+    res: Response
+) {
+
+    try {
+
+        const submissionId = Number(req.params.projectId);
+        const userId = req.user?.id;
+
+        if (Number.isNaN(submissionId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid submission ID'
+            });
+        }
+
+        // check whether user owns or is a member of the project
+        const access = await pool.query(
+            `SELECT s.id
+            FROM submissions s
+            JOIN projects p
+                ON s.project_id = p.id
+            LEFT JOIN project_members pm
+                ON p.id = pm.project_id
+            WHERE s.id = $1
+            AND (
+                p.created_by = $2
+                OR pm.user_id = $2
+            )`,
+            [submissionId, userId]
+
+        );
+
+        if (access.rows.length === 0) {
+
+            return res.status(403).json({
+                success: false,
+                message: 'You do not have access to this resource'
+            });
+
+        }
+
+        const result = await pool.query(
+            `SELECT
+                s.id,
+                s.submission_id,
+                s.reviewer_id,
+                    u.name AS reviewer_name,
+
+                s.previous_status,
+                    s.new_status,
+                    s.created_at
+                FROM review_history s
+                JOIN users u
+                    ON s.reviewer_id = u.id
+                WHERE s.submission_id = $1
+                ORDER BY s.created_at ASC`,
+            [submissionId]
+
+        );
+
+        return res.status(200).json({
+            success: true,
+            data: result.rows
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error in retrieving review history', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+
     }
     
 }
