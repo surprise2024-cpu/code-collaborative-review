@@ -11,6 +11,7 @@ import type {
 import { 
     createNotification 
 } from "../utils/notification.js";
+import { sendToUser } from "../websocket/websocketServer.js";
 
 export async function updateReviewStatus(
     req: AuthRequest,
@@ -156,11 +157,26 @@ export async function updateReviewStatus(
 
         await client.query('COMMIT');
 
+        const notificationMessage = 
+        `Your submission status changed from ${previousStatus} to ${status}`;
+
         await createNotification(
             submission.submitter_id,
-            `Your submission status changed from ${previousStatus}
-            to ${status}`,
+            notificationMessage,
             'review_status_changed'
+        );
+
+        sendToUser(
+            submission.submitter_id,
+            {
+                type: 'notification',
+                data: {
+                    message: notificationMessage,
+                    notificationType: 'review_status_changed'
+                }
+
+            }
+            
         );
 
         return res.status(200).json({
