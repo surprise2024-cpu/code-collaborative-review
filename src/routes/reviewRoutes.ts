@@ -1,4 +1,7 @@
 import { 
+    Request,
+    Response,
+    NextFunction,
     Router 
 } from "express";
 
@@ -21,8 +24,58 @@ router.patch(
     updateReviewStatus
 );
 
+router.post(
+    '/submissions/:id/approve',
+    authenticateToken,
+    authorizeRoles('reviewer'),
+    (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+
+        req.body = {
+            ...(req.body ?? {}),
+            status: 'approved'
+        };
+
+        next();
+    },
+
+    updateReviewStatus
+
+);
+
+router.post(
+    '/submissions/:id/approve',
+    authenticateToken,
+    authorizeRoles('reviewer'),
+    (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) => {
+
+        req.body = {
+            ...(req.body ?? {}),
+            status: 'approved'
+        };
+        
+        next();
+    },
+
+    updateReviewStatus
+
+);
+
 router.get(
     '/submissions/:id/history',
+    authenticateToken,
+    getReviewHistory
+);
+
+router.get(
+    '/submissions/:id/reviews',
     authenticateToken,
     getReviewHistory
 );
