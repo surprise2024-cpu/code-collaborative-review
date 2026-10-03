@@ -100,7 +100,7 @@ export async function getProjectSubmissions(
         // check whether user owns or is a member of the project
         const access = await pool.query(
             `SELECT p.id
-            FROM project p
+            FROM projects p
             LEFT JOIN project_members pm
                 ON p.id = pm.project_id
             WHERE p.id = $1
@@ -123,14 +123,14 @@ export async function getProjectSubmissions(
         const result = await pool.query(
             `SELECT
                 s.id,
-                s.project_id
+                s.project_id,
                 s.submitter_id,
                 s.title,
                 s.code,
                 s.status,
                 s.created_at,
                 s.updated_at
-            FROM submission s
+            FROM submissions s
             WHERE s.project_id = $1
             ORDER BY s.created_at DESC`,
             [projectId]
