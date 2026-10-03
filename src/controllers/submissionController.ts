@@ -184,7 +184,7 @@ export async function getSubmissionById(
                 s.status,
                 s.created_at,
                 s.updated_at
-            FROM submission s
+            FROM submissions s
             JOIN projects p
                 ON s.project_id = p.id
             LEFT JOIN project_members pm
