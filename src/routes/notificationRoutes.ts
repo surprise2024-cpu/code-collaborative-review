@@ -1,8 +1,9 @@
-import { Router } from "express";
+import { 
+    Router 
+} from "express";
 
 import {
     getNotifications
-    
 } from '../controllers/notificationController.js';
 
 import { 
@@ -12,7 +13,7 @@ import {
 const router = Router();
 
 router.get(
-    '/', 
+    '/users/:id/notifications', 
     authenticateToken,
     getNotifications
 );

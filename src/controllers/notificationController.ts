@@ -15,17 +15,36 @@ export async function getNotifications(
 
     try {
 
+        const userId = Number(req.params.id);
+
+        if (Number.isNaN(userId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid user ID'
+            });
+
+        }
+
+        // users may only view their own notifications
+        if (req.user?.id !== userId) {
+            return res.status(403).json({
+                success: false,
+                message: 'You do not have permission to view these notifications'
+            });
+        }
+
         const result = await pool.query(
             `SELECT
                 id,
+                user_id,
                 message,
                 type,
-                is_read,
                 created_at
-            FROM notification
+            FROM notifications
             WHERE user_id = $1
             ORDER BY s.created_at DESC`,
-            [req.user?.id]
+            [userId]
 
         );
 
