@@ -37,7 +37,7 @@ export async function updateReviewStatus(
         const allowedStatuses = [
             'in_review',
             'approved',
-            'change_requested'
+            'changes_requested'
         ];
 
         if (!allowedStatuses.includes(status)) {
@@ -53,7 +53,7 @@ export async function updateReviewStatus(
 
         const submissionResult = await client.query(
             `SELECT
-                s.id
+                s.id,
                 s.project_id,
                 s.submitter_id,
                 s.status
@@ -92,7 +92,7 @@ export async function updateReviewStatus(
                     'changes_requested'
                 ],
 
-                change_equested: [
+                changes_requested: [
                     'in_review'
                 ],
 
@@ -124,7 +124,7 @@ export async function updateReviewStatus(
         const updatedSubmission = await client.query(
             `UPDATE submissions
             SET 
-                status = $1
+                status = $1,
                 updated_at = CURRENT_TIMESTAMP
             WHERE 
                 id = $2
@@ -145,7 +145,7 @@ export async function updateReviewStatus(
             `INSERT INTO 
                 review_history(
                     submission_id,
-                    review_id,
+                    reviewer_id,
                     previous_status, 
                     new_status
                 )
@@ -182,7 +182,7 @@ export async function updateReviewStatus(
         return res.status(200).json({
             success: true,
             message: 'Review status updated successfully',
-            data: submissionResult.rows[0]
+            data: updatedSubmission.rows[0]
         });
 
     }
