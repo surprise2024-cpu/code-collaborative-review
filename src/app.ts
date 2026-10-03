@@ -11,6 +11,7 @@ import submissionRoutes from './routes/submissionRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import statsRoutes from './routes/statsRoutes.js';
 
 const app = express();
 
@@ -33,6 +34,8 @@ app.use('/api', commentRoutes);
 app.use('/api', reviewRoutes);
 
 app.use('/api/notifications', notificationRoutes);
+
+app.use('/api', statsRoutes)
 
 // simple endpoint to check whther the API is working
 app.get('/api/health', (req, res) => {
