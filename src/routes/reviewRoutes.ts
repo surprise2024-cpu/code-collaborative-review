@@ -15,14 +15,14 @@ import {
 const router = Router();
 
 router.patch(
-    '/submissons/:id/status',
+    '/submissions/:id/status',
     authenticateToken,
     authorizeRoles('reviewer'),
     updateReviewStatus
 );
 
 router.get(
-    '/submissons/:id/history',
+    '/submissions/:id/history',
     authenticateToken,
     getReviewHistory
 );
