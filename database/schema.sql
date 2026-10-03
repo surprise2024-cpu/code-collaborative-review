@@ -136,7 +136,6 @@ CREATE TABLE review_history (
 );
 
 CREATE TABLE notifications (
-
     id SERIAL PRIMARY KEY,
 
     user_id INTEGER NOT NULL

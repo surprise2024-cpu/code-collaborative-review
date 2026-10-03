@@ -211,7 +211,7 @@ export async function getReviewHistory(
 
     try {
 
-        const submissionId = Number(req.params.projectId);
+        const submissionId = Number(req.params.id);
         const userId = req.user?.id;
 
         if (Number.isNaN(submissionId)) {
