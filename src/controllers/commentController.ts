@@ -15,7 +15,7 @@ export async function createComment(
 
     try {
 
-        const submissionId = Number(req.params.projectId);
+        const submissionId = Number(req.params.submissionId);
 
         const { content, line_number } = req.body;
 
@@ -82,12 +82,11 @@ export async function createComment(
             RETURNING 
                 id, 
                 submission_id, 
-                reviewer_id, 
-                title, 
+                reviewer_id,
                 content, 
                 line_number, 
                 created_at`,
-            [submissionId, req.user?.id, content.trime(), line_number ?? null]
+            [submissionId, req.user?.id, content.trim(), line_number ?? null]
         );
 
         return res.status(201).json({
