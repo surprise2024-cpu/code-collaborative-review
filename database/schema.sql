@@ -102,7 +102,6 @@ CREATE TABLE project_members (
 );
 
 CREATE TABLE review_history (
-
     id SERIAL PRIMARY KEY,
 
     submission_id INTEGER NOT NULL
@@ -119,22 +118,21 @@ CREATE TABLE review_history (
                 'pending',
                 'in_review',
                 'approved',
-                'change_requested'
+                'changes_requested'
             )
         ),
 
-    new_status VARCHAR(30) NOT NULL 
+    new_status VARCHAR(30) NOT NULL
         CHECK (
             new_status IN (
                 'pending',
                 'in_review',
                 'approved',
-                'change_requested'
+                'changes_requested'
             )
         ),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
 );
 
 CREATE TABLE notifications (
