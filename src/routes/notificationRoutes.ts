@@ -1,8 +1,8 @@
 import { Router } from "express";
 
 import {
-    getNotifications,
-    markNotificationAsRead
+    getNotifications
+    
 } from '../controllers/notificationController.js';
 
 import { 
@@ -15,12 +15,6 @@ router.get(
     '/', 
     authenticateToken,
     getNotifications
-);
-
-router.patch(
-    '/:id/read', 
-    authenticateToken,
-    markNotificationAsRead
 );
 
 export default router;
