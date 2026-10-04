@@ -32,11 +32,11 @@ export async function getProjectStats(
             `SELECT p.id
             FROM projects p
             LEFT JOIN project_members pm
-                ON p.id = pm.projectz_id
+                ON p.id = pm.project_id
             WHERE p.id = $1
             AND (
-            p.created_by = $2
-            OR pm.user_id = $2
+                p.created_by = $2
+                OR pm.user_id = $2
             )`,
             [projectId, userId]
         );
@@ -61,7 +61,7 @@ export async function getProjectStats(
                 
                 COUNT(*) FILTER (
                     WHERE status = 'in_review'
-                )::int AS in_review
+                )::int AS in_review,
                 
                 COUNT(*) FILTER (
                     WHERE status = 'approved'

@@ -43,7 +43,7 @@ export async function getNotifications(
                 created_at
             FROM notifications
             WHERE user_id = $1
-            ORDER BY s.created_at DESC`,
+            ORDER BY created_at DESC`,
             [userId]
 
         );
