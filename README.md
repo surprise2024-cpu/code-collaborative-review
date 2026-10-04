@@ -8,18 +8,18 @@ The platform allows development teams to submit code for review, provide inline 
 
 ## Features
 
-- JWT authentication and role-based authorization
-- Submitter and Reviewer roles
-- User profile management
-- Project creation and member management
-- Code submissions and status tracking
-- General and inline code comments
-- Review approval and change requests
-- Review history tracking
-- User activity notifications
-- Real-time WebSocket updates
-- Project review analytics
-- Request validation and error handling
+- JWT authentication and role-based authorization.
+- Submitter and Reviewer roles.
+- User profile management.
+- Project creation and member management.
+- Code submissions and status tracking.
+- General and inline code comments.
+- Review approval and change requests.
+- Review history tracking.
+- User activity notifications.
+- Real-time WebSocket updates.
+- Project review analytics.
+- Request validation and error handling.
 
 ---
 
