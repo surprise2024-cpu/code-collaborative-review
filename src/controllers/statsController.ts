@@ -94,14 +94,152 @@ export async function getProjectStats(
 
         );
 
+        // calculate the average review time
+        const averageReviewTimeResult = await pool.query(
+            `SELECT
+                ROUND(
+                    AVG(
+                        EXTRACT(EPOCH FROM (rh.created_at - s.created_at)) / 60
+                    )::numeric,
+                    2
+                ) AS average_review_time_minutes
+
+            FROM review_history rh
+
+            JOIN submissions s
+                ON rh.submission_id = s.id
+
+            WHERE s.project_id = $1
+            AND rh.new_status IN ('approved', 'changes_requested')`,
+            [projectId]
+        );
+
+
+        // calculate approved vs changes requested percentages
+        const percentageResult = await pool.query(
+            `SELECT
+                ROUND(
+                    (
+                        COUNT(*) FILTER (
+                            WHERE status = 'approved'
+                        )::numeric
+                        /
+                        NULLIF(
+                            COUNT(*) FILTER (
+                                WHERE status IN (
+                                    'approved',
+                                    'changes_requested'
+                                )
+                            ),
+                            0
+                        )
+                    ) * 100,
+                    2
+                ) AS approved_percentage,
+
+                ROUND(
+                    (
+                        COUNT(*) FILTER (
+                            WHERE status = 'changes_requested'
+                        )::numeric
+                        /
+                        NULLIF(
+                            COUNT(*) FILTER (
+                                WHERE status IN (
+                                    'approved',
+                                    'changes_requested'
+                                )
+                            ),
+                            0
+                        )
+                    ) * 100,
+                    2
+                ) AS changes_requested_percentage
+
+            FROM submissions
+
+            WHERE project_id = $1`,
+            [projectId]
+        );
+
+
+        // show how active each reviewer is
+        const reviewerActivityResult = await pool.query(
+            `SELECT
+                u.id AS reviewer_id,
+                u.name AS reviewer_name,
+                COUNT(rh.id)::int AS review_actions
+
+            FROM review_history rh
+
+            JOIN submissions s
+                ON rh.submission_id = s.id
+
+            JOIN users u
+                ON rh.reviewer_id = u.id
+
+            WHERE s.project_id = $1
+
+            GROUP BY
+                u.id,
+                u.name
+
+            ORDER BY review_actions DESC`,
+            [projectId]
+        );
+
+
+        // find the submission with the most comments
+        const mostCommentedResult = await pool.query(
+            `SELECT
+                s.id AS submission_id,
+                s.title,
+                COUNT(c.id)::int AS comment_count
+
+            FROM submissions s
+
+            LEFT JOIN comments c
+                ON s.id = c.submission_id
+
+            WHERE s.project_id = $1
+
+            GROUP BY
+                s.id,
+                s.title
+
+            ORDER BY comment_count DESC
+
+            LIMIT 1`,
+            [projectId]
+        );
+
         return res.status(200).json({
             success: true,
             data: {
-                ...submissionResult.rows[0],
-                total_comments:
-                    commentResult.rows[0].total_comments
-            }
 
+                // basic project statistics
+                ...submissionResult.rows[0],
+
+                total_comments:
+                    commentResult.rows[0].total_comments,
+
+                
+                average_review_time_minutes:
+                    averageReviewTimeResult.rows[0].average_review_time_minutes,
+
+                approved_percentage:
+                    percentageResult.rows[0].approved_percentage,
+
+                changes_requested_percentage:
+                    percentageResult.rows[0].changes_requested_percentage,
+
+                reviewer_activity:
+                    reviewerActivityResult.rows,
+
+                most_commented_submission:
+                    mostCommentedResult.rows[0] ?? null
+
+            }
         });
 
     }

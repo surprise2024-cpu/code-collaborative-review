@@ -14,18 +14,23 @@ import {
     authenticateToken, 
     authorizeRoles 
 } from "../middleware/authMiddleware.js";
-import { validateRequiredFields } from "../middleware/validationMiddleware.js";
+
+import { 
+    validateRequiredFields 
+} from "../middleware/validationMiddleware.js";
 
 const router = Router();
 
 router.post(
-    '/projects/:projectId/submissions',
+    '/submissions',
     authenticateToken,
     authorizeRoles('submitter'),
     validateRequiredFields(
+        'project_id',
         'title',
         'code'
     ),
+
     createSubmission
 );
 

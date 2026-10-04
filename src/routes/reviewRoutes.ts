@@ -47,7 +47,7 @@ router.post(
 );
 
 router.post(
-    '/submissions/:id/approve',
+    '/submissions/:id/request-changes',
     authenticateToken,
     authorizeRoles('reviewer'),
     (
@@ -58,7 +58,7 @@ router.post(
 
         req.body = {
             ...(req.body ?? {}),
-            status: 'approved'
+            status: 'changes_requested'
         };
         
         next();
@@ -66,12 +66,6 @@ router.post(
 
     updateReviewStatus
 
-);
-
-router.get(
-    '/submissions/:id/history',
-    authenticateToken,
-    getReviewHistory
 );
 
 router.get(

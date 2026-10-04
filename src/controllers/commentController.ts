@@ -4,10 +4,6 @@ import pool from '../config/database.js';
 
 import type { AuthRequest } from "../middleware/authMiddleware.js";
 
-import { createNotification } from "../utils/notification.js";
-
-import { sendToUser } from "../websocket/websocketServer.js";
-
 export async function createComment(
     req: AuthRequest,
     res: Response
@@ -15,7 +11,7 @@ export async function createComment(
 
     try {
 
-        const submissionId = Number(req.params.submissionId);
+        const submissionId = Number(req.params.id);
 
         const { content, line_number } = req.body;
 
@@ -130,12 +126,21 @@ export async function getSubmissionComments(
         // check whether user can access the submission
         const access = await pool.query(
             `SELECT s.id 
+
             FROM submission s
+
             JOIN projects p 
                 ON s.project_id = p.id
+
             LEFT JOIN project_members pm
+                ON p.id = pm.project_id
+
             WHERE s.id = $1 
-            AND (p.created_by = $2 OR pm.user_id = $2)`,
+
+            AND (
+                p.created_by = $2 
+                OR pm.user_id = $2
+            )`,
             [submissionId, userId]
         );
 
@@ -174,6 +179,161 @@ export async function getSubmissionComments(
     catch (error) {
 
         console.error('Error fetching comments: ', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+
+    }
+
+}
+
+export async function updateComment(
+    req: AuthRequest,
+    res: Response
+) {
+
+    try {
+
+        const commentId = Number(req.params.id);
+        const { content, line_number } = req.body;
+
+        if (Number.isNaN(commentId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid comment ID'
+            });
+
+        }
+
+        if (!content || !content.trim()) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Comment content is required'
+            });
+
+        }
+
+        if (
+            line_number !== undefined &&
+            line_number !== null &&
+            (
+                !Number.isInteger(line_number) ||
+                line_number <= 0
+            )
+        ) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Line number must be a positive integer'
+            });
+
+        }
+
+        const result = await pool.query(
+            `UPDATE comments
+            SET
+                content = $1,
+                line_number = $2,
+                updated_at = CURRENT_TIMESTAMP
+
+            WHERE id = $3
+            AND reviewer_id = $4
+
+            RETURNING
+                id,
+                submission_id,
+                reviewer_id,
+                content,
+                line_number,
+                created_at,
+                updated_at`,
+            [
+                content.trim(),
+                line_number ?? null,
+                commentId,
+                req.user?.id
+            ]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'Comment not found'
+            });
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Comment updated successfully',
+            data: result.rows[0]
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error updating comment:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error'
+        });
+
+    }
+
+}
+
+export async function deleteComment(
+    req: AuthRequest,
+    res: Response
+) {
+
+    try {
+
+        const commentId = Number(req.params.id);
+
+        if (Number.isNaN(commentId)) {
+
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid comment ID'
+            });
+
+        }
+
+        const result = await pool.query(
+            `DELETE FROM comments
+
+            WHERE id = $1
+            AND reviewer_id = $2
+
+            RETURNING id`,
+            [commentId, req.user?.id]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(404).json({
+                success: false,
+                message: 'Comment not found'
+            });
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Comment deleted successfully'
+        });
+
+    }
+    catch (error) {
+
+        console.error('Error deleting comment:', error);
 
         return res.status(500).json({
             success: false,

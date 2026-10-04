@@ -11,9 +11,11 @@ export async function createSubmission(
 
     try {
 
-        const projectId = Number(req.params.projectId);
+        
 
-        const { title, code } = req.body;
+        const { project_id, title, code } = req.body;
+
+        const projectId = Number(project_id);
 
         if (Number.isNaN(projectId)) {
 
@@ -223,6 +225,7 @@ export async function getSubmissionById(
     }
 }
 
+// preparing to delete
 export async function updateSubmission(
     req: AuthRequest,
     res: Response

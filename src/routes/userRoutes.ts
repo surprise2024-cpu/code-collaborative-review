@@ -1,21 +1,37 @@
-import { Router } from "express";
-import { authenticateToken } from "../middleware/authMiddleware.js";
-import { getProfile, updateProfile } from "../controllers/userController.js";
+import { 
+    Router 
+} from "express";
+
+import { 
+    authenticateToken 
+} from "../middleware/authMiddleware.js";
+
+import { 
+    getProfile, 
+    updateProfile, 
+    deleteProfile 
+} from "../controllers/userController.js";
 
 
 
 const router = Router();
 
 router.get(
-    '/profile', 
+    '/:id', 
     authenticateToken, 
     getProfile
 );
 
 router.put(
-    '/profile', 
+    '/:id', 
     authenticateToken, 
     updateProfile
+);
+
+router.delete(
+    '/:id',
+    authenticateToken,
+    deleteProfile
 );
 
 export default router;

@@ -1,10 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes.js';
-import { 
-    authenticateToken,
-    type AuthRequest
-} from './middleware/authMiddleware.js';
 import userRoutes from './routes/userRoutes.js';
 import projectRoutes from './routes/projectRoutes.js';
 import submissionRoutes from './routes/submissionRoutes.js';
@@ -12,7 +8,9 @@ import commentRoutes from './routes/commentRoutes.js';
 import reviewRoutes from './routes/reviewRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import statsRoutes from './routes/statsRoutes.js';
-import { errorHandler } from './middleware/errorMiddleware.js';
+import { 
+    errorHandler 
+} from './middleware/errorMiddleware.js';
 
 const app = express();
 
@@ -36,7 +34,7 @@ app.use('/api', reviewRoutes);
 
 app.use('/api', notificationRoutes);
 
-app.use('/api', statsRoutes)
+app.use('/api', statsRoutes);
 
 // simple endpoint to check whther the API is working
 app.get('/api/health', (req, res) => {
@@ -48,21 +46,6 @@ app.get('/api/health', (req, res) => {
 
 });
 
-app.get(
-    '/api/protected', 
-    authenticateToken, 
-    (req: AuthRequest, res) => {
-
-        res.status(200).json({
-            success: true,
-            message: 'This is a protected route',
-            user: req.user
-        });
-
-    }
-
-);
-
-app.use(errorHandler)
+app.use(errorHandler);
 
 export default app;
