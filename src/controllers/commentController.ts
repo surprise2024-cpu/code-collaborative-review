@@ -127,7 +127,7 @@ export async function getSubmissionComments(
         const access = await pool.query(
             `SELECT s.id 
 
-            FROM submission s
+            FROM submissions s
 
             JOIN projects p 
                 ON s.project_id = p.id
